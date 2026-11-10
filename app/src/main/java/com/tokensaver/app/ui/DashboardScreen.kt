@@ -47,7 +47,7 @@ fun DashboardScreen(
     onOpenAccessibilitySettings: () -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(20.dp),
+        modifier = Modifier.fillMaxSize().padding(20.dp).testTag("dashboard-list"),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {

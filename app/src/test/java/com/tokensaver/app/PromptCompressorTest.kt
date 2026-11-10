@@ -29,7 +29,7 @@ class PromptCompressorTest {
         val examples = listOf(
             "Chat" to "Please, could you please summarize the meeting transcript and basically list the decisions, owners, and deadlines for each action item?",
             "JSON payload" to "{ \"request\": \"Please analyze this user event\", \"metadata\": { \"source\": \"mobile app\", \"retry\": false }, \"items\": [ 1, 2, 3 ] }",
-            "Server logs" to "Please investigate these server logs and, basically, explain the likely cause:\n2025-02-18T10:14:02Z ERROR api timeout   request_id=7f31\n2025-02-18T10:14:03Z WARN retry scheduled   attempt=2",
+            "Server logs" to "Please investigate these server logs and basically explain the likely cause:\n2025-02-18T10:14:02Z ERROR api timeout   request_id=7f31\n2025-02-18T10:14:03Z WARN retry scheduled   attempt=2",
             "Code block" to "Please explain what this code does and identify any edge cases:\n```kotlin\nfun total(values: List<Int>) = values.sum()\n```",
             "Duplicate check" to "Please, basically, compare this prompt with the previous request and tell me whether the question and expected answer are the same."
         )

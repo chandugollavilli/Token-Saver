@@ -1,11 +1,12 @@
 package com.tokensaver.app
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.core.app.ApplicationProvider
 import com.tokensaver.app.data.LocalPromptCache
 import android.content.Context
@@ -31,7 +32,7 @@ class AppRuntimeSmokeTest {
     @Test
     fun activityAndBothComposeScreensInitializeAndNavigate() {
         composeRule.onNodeWithText("Token Saver").assertIsDisplayed()
-        composeRule.onNodeWithTag("live-test-sandbox").performScrollTo()
+        composeRule.onNodeWithTag("dashboard-list").performScrollToNode(hasTestTag("live-test-sandbox"))
         composeRule.onNodeWithText("Test Compression").performClick()
         composeRule.onNodeWithText("Original tokens: 30 (estimated)").assertIsDisplayed()
         composeRule.onNodeWithText("Compressed tokens: 23 (estimated)").assertIsDisplayed()
