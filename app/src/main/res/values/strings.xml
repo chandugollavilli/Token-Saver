@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Token Saver</string>
+    <string name="accessibility_service_name">Token Saver prompt helper</string>
+    <string name="accessibility_service_description">When enabled, shows an optional compression button only in apps you select. Prompt text is processed on this device and is not uploaded or stored.</string>
+</resources>
