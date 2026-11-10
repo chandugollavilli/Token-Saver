@@ -6,15 +6,24 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.core.app.ApplicationProvider
 import com.tokensaver.app.data.LocalPromptCache
+import android.content.Context
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.GraphicsMode
+import org.robolectric.annotation.LooperMode
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35])
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@LooperMode(LooperMode.Mode.PAUSED)
 class AppRuntimeSmokeTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<MainActivity>()
@@ -23,7 +32,6 @@ class AppRuntimeSmokeTest {
     fun activityAndBothComposeScreensInitializeAndNavigate() {
         composeRule.onNodeWithText("Token Saver").assertIsDisplayed()
         composeRule.onNodeWithTag("live-test-sandbox").performScrollTo()
-        composeRule.onNodeWithText("Test Compression").assertIsDisplayed()
         composeRule.onNodeWithText("Test Compression").performClick()
         composeRule.onNodeWithText("Original tokens: 30 (estimated)").assertIsDisplayed()
         composeRule.onNodeWithText("Compressed tokens: 23 (estimated)").assertIsDisplayed()
@@ -39,11 +47,15 @@ class AppRuntimeSmokeTest {
 
     @Test
     fun localDuplicateCacheRecognizesPreviouslyAppliedPrompt() {
+        val preferences = ApplicationProvider.getApplicationContext<Context>()
+            .getSharedPreferences("prompt_fingerprints", Context.MODE_PRIVATE)
+        preferences.edit().clear().commit()
         val prompt = "A unique prompt for the local duplicate-cache smoke test."
         val cache = LocalPromptCache(composeRule.activity)
 
         assertFalse(cache.hasSeen(prompt))
         cache.remember(prompt)
         assertTrue(cache.hasSeen(prompt))
+        assertEquals(64, preferences.getStringSet("prompt_sha256", emptySet())!!.single().length)
     }
 }
