@@ -13,12 +13,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -27,6 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tokensaver.app.data.AppCatalog
 import com.tokensaver.app.data.StatsSnapshot
+import com.tokensaver.app.engine.PromptCompressor
+import com.tokensaver.app.engine.TokenEstimator
+import java.util.Locale
 
 @Composable
 fun DashboardScreen(
@@ -76,6 +86,7 @@ fun DashboardScreen(
         }
         item { Text("Saved today: ${stats.dailySavedTokens} estimated tokens", style = MaterialTheme.typography.titleMedium) }
         item { Text("All-time: ${stats.totalSavedTokens} estimated tokens", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        item { LiveTestSandbox() }
         item { Text("By app", style = MaterialTheme.typography.titleLarge) }
         items(AppCatalog.apps) { app ->
             val saved = stats.byApp[app.packageName] ?: 0
@@ -91,6 +102,50 @@ fun DashboardScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+    }
+}
+
+@Composable
+private fun LiveTestSandbox() {
+    var prompt by remember {
+        mutableStateOf("Please summarize the key points from this report and, basically, explain what actions we should take next.")
+    }
+    var testedPrompt by remember { mutableStateOf<String?>(null) }
+    val compressed = testedPrompt?.let(PromptCompressor::compress)
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(18.dp).testTag("live-test-sandbox"),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text("Live Test Sandbox", style = MaterialTheme.typography.titleLarge)
+            Text("Try prompt compression here without enabling Accessibility.", style = MaterialTheme.typography.bodySmall)
+            OutlinedTextField(
+                value = prompt,
+                onValueChange = { prompt = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Sample prompt") }
+            )
+            Button(onClick = { testedPrompt = prompt }, modifier = Modifier.fillMaxWidth()) {
+                Text("Test Compression")
+            }
+            if (testedPrompt != null && compressed != null) {
+                val originalTokens = TokenEstimator.estimate(testedPrompt!!)
+                val compressedTokens = TokenEstimator.estimate(compressed)
+                val savedTokens = originalTokens - compressedTokens
+                val savedPercent = if (originalTokens == 0) 0.0 else savedTokens * 100.0 / originalTokens
+                Text("Before — original text", style = MaterialTheme.typography.titleSmall)
+                Text(testedPrompt!!, style = MaterialTheme.typography.bodyMedium)
+                Text("Original tokens: $originalTokens (estimated)")
+                Text("After — compressed text", style = MaterialTheme.typography.titleSmall)
+                Text(compressed, style = MaterialTheme.typography.bodyMedium)
+                Text("Compressed tokens: $compressedTokens (estimated)")
+                Text(
+                    "Tokens saved: $savedTokens (${String.format(Locale.US, "%.2f", savedPercent)}%)",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         }
     }
 }
