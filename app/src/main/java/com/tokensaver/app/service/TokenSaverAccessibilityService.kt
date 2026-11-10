@@ -28,7 +28,7 @@ class TokenSaverAccessibilityService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (!::badge.isInitialized) return
         event ?: return
-        val packageName = event.packageName?.toString()
+        val packageName = event.packageName?.toString() ?: run { clearTarget(); return }
         if (!stats.isEnabled() || packageName !in stats.whitelistedPackages()) {
             clearTarget()
             return
