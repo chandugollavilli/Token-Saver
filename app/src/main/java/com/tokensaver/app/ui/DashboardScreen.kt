@@ -109,7 +109,7 @@ fun DashboardScreen(
 @Composable
 private fun LiveTestSandbox() {
     var prompt by remember {
-        mutableStateOf("Please summarize the key points from this report and, basically, explain what actions we should take next.")
+        mutableStateOf("Please summarize the key points from this report and basically explain what actions we should take next.")
     }
     var testedPrompt by remember { mutableStateOf<String?>(null) }
     val compressed = testedPrompt?.let(PromptCompressor::compress)
